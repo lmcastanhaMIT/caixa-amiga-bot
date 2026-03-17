@@ -21,6 +21,7 @@ const navItems = [
 
 export default function AppSidebar() {
   const location = useLocation();
+  const { signOut } = useAuth();
 
   return (
     <aside className="hidden lg:flex flex-col w-64 border-r border-border bg-sidebar h-screen sticky top-0">
