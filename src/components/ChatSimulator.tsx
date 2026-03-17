@@ -14,10 +14,12 @@ interface Message {
 const WELCOME = `Olá! 👋 Sou o FinAssist, seu assistente financeiro.
 
 Exemplos do que posso fazer:
-• "gastei 120 no mercado"
-• "recebi 5000 salário"
+• "gastei 89,90 no mercado"
+• "recebi 3.500 de salário"
 • "qual meu saldo?"
-• "resumo do mês"
+• "fechamento do mês"
+• "definir orçamento de 1200 para alimentação"
+• "meus orçamentos"
 • "criar meta de 15000 reserva de emergência"
 • "minhas metas"`;
 
