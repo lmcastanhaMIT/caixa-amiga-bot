@@ -57,7 +57,7 @@ export default function AppSidebar() {
       </nav>
 
       {/* Footer */}
-      <div className="px-3 py-4 border-t border-border">
+      <div className="px-3 py-4 border-t border-border space-y-1">
         <Link
           to="/configuracoes"
           className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-foreground transition-colors"
@@ -65,6 +65,13 @@ export default function AppSidebar() {
           <Settings className="w-4.5 h-4.5" />
           Configurações
         </Link>
+        <button
+          onClick={signOut}
+          className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-sidebar-foreground hover:bg-destructive/10 hover:text-destructive transition-colors w-full"
+        >
+          <LogOut className="w-4.5 h-4.5" />
+          Sair
+        </button>
       </div>
     </aside>
   );
