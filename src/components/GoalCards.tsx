@@ -1,30 +1,37 @@
 import { motion } from "framer-motion";
-
-interface Goal {
-  id: string;
-  name: string;
-  emoji: string;
-  current: number;
-  target: number;
-  deadline: string;
-  monthlySuggestion: number;
-}
-
-const mockGoals: Goal[] = [
-  { id: "1", name: "Reserva de Emergência", emoji: "🛡️", current: 8500, target: 15000, deadline: "Dez 2026", monthlySuggestion: 650 },
-  { id: "2", name: "Viagem Europa", emoji: "✈️", current: 3200, target: 12000, deadline: "Jul 2027", monthlySuggestion: 550 },
-  { id: "3", name: "MacBook Pro", emoji: "💻", current: 5800, target: 8000, deadline: "Jun 2026", monthlySuggestion: 733 },
-];
+import { useGoals } from "@/hooks/useFinanceData";
 
 function formatCurrency(value: number) {
   return new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(value);
 }
 
 export default function GoalCards({ compact }: { compact?: boolean }) {
+  const { data: goals, isLoading } = useGoals();
+
+  if (isLoading) {
+    return <div className="animate-pulse space-y-3"><div className="h-20 bg-muted rounded-lg" /><div className="h-20 bg-muted rounded-lg" /></div>;
+  }
+
+  if (!goals?.length) {
+    return (
+      <div className="py-6 text-center">
+        <p className="text-sm text-muted-foreground">Nenhuma meta criada.</p>
+        <p className="text-xs text-muted-foreground mt-1">Use o chat: "criar meta de 15000 para reserva"</p>
+      </div>
+    );
+  }
+
   return (
     <div className={compact ? "space-y-3" : "grid gap-4 md:grid-cols-2 xl:grid-cols-3"}>
-      {mockGoals.map((goal, i) => {
-        const pct = Math.round((goal.current / goal.target) * 100);
+      {goals.map((goal, i) => {
+        const pct = Math.round((Number(goal.current_amount) / Number(goal.target_amount)) * 100);
+        const remaining = Number(goal.target_amount) - Number(goal.current_amount);
+        let monthlySuggestion = 0;
+        if (goal.deadline) {
+          const months = Math.max(1, Math.ceil((new Date(goal.deadline).getTime() - Date.now()) / (30 * 24 * 60 * 60 * 1000)));
+          monthlySuggestion = remaining / months;
+        }
+
         return (
           <motion.div
             key={goal.id}
@@ -52,22 +59,24 @@ export default function GoalCards({ compact }: { compact?: boolean }) {
                   <span className="text-2xl">{goal.emoji}</span>
                   <div>
                     <h3 className="font-display font-semibold text-foreground">{goal.name}</h3>
-                    <p className="text-xs text-muted-foreground">Meta: {goal.deadline}</p>
+                    {goal.deadline && <p className="text-xs text-muted-foreground">Meta: {new Date(goal.deadline).toLocaleDateString("pt-BR", { month: "short", year: "numeric" })}</p>}
                   </div>
                 </div>
                 <div className="flex items-end justify-between mb-2">
                   <div>
                     <p className="text-xs text-muted-foreground">Acumulado</p>
-                    <p className="text-lg font-display font-bold text-foreground">{formatCurrency(goal.current)}</p>
+                    <p className="text-lg font-display font-bold text-foreground">{formatCurrency(Number(goal.current_amount))}</p>
                   </div>
-                  <p className="text-xs text-muted-foreground">de {formatCurrency(goal.target)}</p>
+                  <p className="text-xs text-muted-foreground">de {formatCurrency(Number(goal.target_amount))}</p>
                 </div>
                 <div className="progress-goal mb-3">
                   <div className="progress-goal-fill" style={{ width: `${pct}%` }} />
                 </div>
-                <p className="text-xs text-muted-foreground">
-                  💡 Sugestão: <span className="font-semibold text-accent">{formatCurrency(goal.monthlySuggestion)}/mês</span>
-                </p>
+                {monthlySuggestion > 0 && (
+                  <p className="text-xs text-muted-foreground">
+                    💡 Sugestão: <span className="font-semibold text-accent">{formatCurrency(monthlySuggestion)}/mês</span>
+                  </p>
+                )}
               </>
             )}
           </motion.div>

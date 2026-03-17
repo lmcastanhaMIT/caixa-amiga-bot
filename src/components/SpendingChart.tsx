@@ -1,12 +1,15 @@
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
+import { useMonthlyStats } from "@/hooks/useFinanceData";
 
-const data = [
-  { name: "Moradia", value: 1800, color: "hsl(160, 84%, 39%)" },
-  { name: "Alimentação", value: 850, color: "hsl(217, 91%, 60%)" },
-  { name: "Transporte", value: 340, color: "hsl(38, 92%, 50%)" },
-  { name: "Assinaturas", value: 155, color: "hsl(280, 60%, 55%)" },
-  { name: "Saúde", value: 89, color: "hsl(0, 84%, 60%)" },
-  { name: "Lazer", value: 280, color: "hsl(190, 70%, 50%)" },
+const COLORS = [
+  "hsl(160, 84%, 39%)",
+  "hsl(217, 91%, 60%)",
+  "hsl(38, 92%, 50%)",
+  "hsl(280, 60%, 55%)",
+  "hsl(0, 84%, 60%)",
+  "hsl(190, 70%, 50%)",
+  "hsl(340, 75%, 55%)",
+  "hsl(120, 40%, 50%)",
 ];
 
 function formatCurrency(value: number) {
@@ -14,6 +17,24 @@ function formatCurrency(value: number) {
 }
 
 export default function SpendingChart() {
+  const { data: stats, isLoading } = useMonthlyStats();
+
+  if (isLoading) {
+    return <div className="w-48 h-48 mx-auto bg-muted rounded-full animate-pulse" />;
+  }
+
+  if (!stats || Object.keys(stats.categories).length === 0) {
+    return (
+      <div className="py-8 text-center">
+        <p className="text-sm text-muted-foreground">Sem gastos este mês.</p>
+      </div>
+    );
+  }
+
+  const data = Object.entries(stats.categories)
+    .sort((a, b) => b[1] - a[1])
+    .map(([name, value], i) => ({ name, value, color: COLORS[i % COLORS.length] }));
+
   return (
     <div className="flex flex-col items-center">
       <div className="w-48 h-48">
@@ -33,14 +54,14 @@ export default function SpendingChart() {
                 <Cell key={`cell-${index}`} fill={entry.color} />
               ))}
             </Pie>
-            <Tooltip 
+            <Tooltip
               formatter={(value: number) => formatCurrency(value)}
-              contentStyle={{ 
-                borderRadius: "0.75rem", 
-                border: "1px solid hsl(var(--border))", 
+              contentStyle={{
+                borderRadius: "0.75rem",
+                border: "1px solid hsl(var(--border))",
                 boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
                 fontFamily: "Public Sans",
-                fontSize: "13px"
+                fontSize: "13px",
               }}
             />
           </PieChart>
