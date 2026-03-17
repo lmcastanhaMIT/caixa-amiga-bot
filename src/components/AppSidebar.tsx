@@ -7,7 +7,9 @@ import {
   MessageCircle,
   Settings,
   Bot,
+  LogOut,
 } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
 
 const navItems = [
   { to: "/", icon: LayoutDashboard, label: "Dashboard" },
