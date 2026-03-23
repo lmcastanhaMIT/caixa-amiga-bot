@@ -5,6 +5,7 @@ import {
   Target,
   Wallet,
   MessageCircle,
+  Smartphone,
   Settings,
   Bot,
   LogOut,
@@ -17,6 +18,7 @@ const navItems = [
   { to: "/metas", icon: Target, label: "Metas" },
   { to: "/orcamento", icon: Wallet, label: "Orçamento" },
   { to: "/chat", icon: MessageCircle, label: "Chat Preview" },
+  { to: "/whatsapp", icon: Smartphone, label: "WhatsApp" },
 ];
 
 export default function AppSidebar() {
