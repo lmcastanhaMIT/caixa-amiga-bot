@@ -510,10 +510,14 @@ Regras:
 
     if (choice?.tool_calls?.length) {
       const toolResults = [];
+      const executedActions: string[] = [];
+      let allSuccess = true;
       for (const call of choice.tool_calls) {
         const args = JSON.parse(call.function.arguments);
         const result = await executeFunction(call.function.name, args, supabase, userId);
         toolResults.push({ role: "tool", tool_call_id: call.id, content: result });
+        executedActions.push(call.function.name);
+        if (result.includes("Erro") || result.includes("erro")) allSuccess = false;
       }
 
       const finalResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
@@ -527,12 +531,17 @@ Regras:
 
       if (!finalResponse.ok) throw new Error("Final AI call failed");
       const finalData = await finalResponse.json();
-      return new Response(JSON.stringify({ reply: finalData.choices?.[0]?.message?.content || "Erro." }), {
+      const reply = finalData.choices?.[0]?.message?.content || "Erro.";
+      return new Response(JSON.stringify({ 
+        success: allSuccess, 
+        action: executedActions.join(", "), 
+        reply 
+      }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-    return new Response(JSON.stringify({ reply: choice?.content || "Não entendi. Tente: 'gastei 50 no uber' ou 'qual meu saldo?'" }), {
+    return new Response(JSON.stringify({ success: true, action: "chat", reply: choice?.content || "Não entendi. Tente: 'gastei 50 no uber' ou 'qual meu saldo?'" }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (e) {
