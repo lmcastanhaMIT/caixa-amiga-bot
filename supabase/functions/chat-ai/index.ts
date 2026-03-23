@@ -440,21 +440,36 @@ serve(async (req) => {
 
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
-    const supabase = createClient(supabaseUrl, supabaseAnonKey, {
-      global: { headers: { Authorization: authHeader } },
-    });
+    const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 
-    const token = authHeader.replace("Bearer ", "");
-    const { data: claimsData, error: claimsError } = await supabase.auth.getClaims(token);
-    if (claimsError || !claimsData?.claims) {
-      return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    const body = await req.json();
+    const isWhatsApp = body.channel === "whatsapp" || req.headers.get("x-whatsapp-channel") === "true";
+
+    let supabase: any;
+    let userId: string;
+    let messages: any[];
+
+    if (isWhatsApp && body.userId) {
+      // WhatsApp channel: use service role key, userId from body
+      supabase = createClient(supabaseUrl, serviceRoleKey);
+      userId = body.userId;
+      messages = [{ role: "user", content: body.message }];
+    } else {
+      // Web channel: normal auth
+      supabase = createClient(supabaseUrl, supabaseAnonKey, {
+        global: { headers: { Authorization: authHeader } },
+      });
+      const token = authHeader.replace("Bearer ", "");
+      const { data: claimsData, error: claimsError } = await supabase.auth.getClaims(token);
+      if (claimsError || !claimsData?.claims) {
+        return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      }
+      userId = claimsData.claims.sub;
+      messages = body.messages;
     }
-    const userId = claimsData.claims.sub;
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY not configured");
-
-    const { messages } = await req.json();
 
     const systemPrompt = `Você é o FinAssist, um assistente financeiro inteligente. 
 Regras:
