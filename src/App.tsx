@@ -30,7 +30,7 @@ const App = () => (
             <Route path="/metas" element={<ProtectedRoute><Metas /></ProtectedRoute>} />
             <Route path="/orcamento" element={<ProtectedRoute><Orcamento /></ProtectedRoute>} />
             <Route path="/chat" element={<ProtectedRoute><Chat /></ProtectedRoute>} />
-            <Route path="/whatsapp" element={<ProtectedRoute><WhatsApp /></ProtectedRoute>} />
+            <Route path="/whatsapp" element={<ProtectedRoute><WhatsAppPanel /></ProtectedRoute>} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
