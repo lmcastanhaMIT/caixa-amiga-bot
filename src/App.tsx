@@ -10,7 +10,7 @@ import Transacoes from "./pages/Transacoes";
 import Metas from "./pages/Metas";
 import Orcamento from "./pages/Orcamento";
 import Chat from "./pages/Chat";
-import WhatsApp from "./pages/WhatsApp";
+import { WhatsAppPanel } from "@/components/WhatsAppPanel";
 import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
 
@@ -30,7 +30,7 @@ const App = () => (
             <Route path="/metas" element={<ProtectedRoute><Metas /></ProtectedRoute>} />
             <Route path="/orcamento" element={<ProtectedRoute><Orcamento /></ProtectedRoute>} />
             <Route path="/chat" element={<ProtectedRoute><Chat /></ProtectedRoute>} />
-            <Route path="/whatsapp" element={<ProtectedRoute><WhatsApp /></ProtectedRoute>} />
+            <Route path="/whatsapp" element={<ProtectedRoute><WhatsAppPanel /></ProtectedRoute>} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
