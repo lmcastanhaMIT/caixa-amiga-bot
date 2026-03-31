@@ -5,6 +5,7 @@ import {
   Target,
   Wallet,
   MessageCircle,
+  Users,
 } from "lucide-react";
 
 const navItems = [
@@ -12,7 +13,7 @@ const navItems = [
   { to: "/transacoes", icon: ArrowLeftRight, label: "Transações" },
   { to: "/metas", icon: Target, label: "Metas" },
   { to: "/orcamento", icon: Wallet, label: "Orçamento" },
-  { to: "/chat", icon: MessageCircle, label: "Chat" },
+  { to: "/carteira", icon: Users, label: "Carteira" },
 ];
 
 export default function MobileNav() {

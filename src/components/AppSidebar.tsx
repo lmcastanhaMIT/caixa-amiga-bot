@@ -9,6 +9,7 @@ import {
   Settings,
   Bot,
   LogOut,
+  Users,
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 
@@ -17,6 +18,7 @@ const navItems = [
   { to: "/transacoes", icon: ArrowLeftRight, label: "Transações" },
   { to: "/metas", icon: Target, label: "Metas" },
   { to: "/orcamento", icon: Wallet, label: "Orçamento" },
+  { to: "/carteira", icon: Users, label: "Carteira" },
   { to: "/chat", icon: MessageCircle, label: "Chat Preview" },
   { to: "/whatsapp", icon: Smartphone, label: "WhatsApp" },
 ];
