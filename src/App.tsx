@@ -10,7 +10,7 @@ import Transacoes from "./pages/Transacoes";
 import Metas from "./pages/Metas";
 import Orcamento from "./pages/Orcamento";
 import Chat from "./pages/Chat";
-import WhatsApp from "./pages/WhatsApp";
+import { WhatsAppPanel } from "@/components/WhatsAppPanel";
 import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
 
