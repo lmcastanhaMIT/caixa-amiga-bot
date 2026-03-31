@@ -18,6 +18,7 @@ export type Database = {
         Row: {
           category: string
           created_at: string
+          household_id: string | null
           id: string
           month_year: string
           monthly_limit: number
@@ -26,6 +27,7 @@ export type Database = {
         Insert: {
           category: string
           created_at?: string
+          household_id?: string | null
           id?: string
           month_year: string
           monthly_limit: number
@@ -34,12 +36,21 @@ export type Database = {
         Update: {
           category?: string
           created_at?: string
+          household_id?: string | null
           id?: string
           month_year?: string
           monthly_limit?: number
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "budgets_household_id_fkey"
+            columns: ["household_id"]
+            isOneToOne: false
+            referencedRelation: "households"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       goals: {
         Row: {
@@ -47,6 +58,7 @@ export type Database = {
           current_amount: number
           deadline: string | null
           emoji: string
+          household_id: string | null
           id: string
           name: string
           target_amount: number
@@ -58,6 +70,7 @@ export type Database = {
           current_amount?: number
           deadline?: string | null
           emoji?: string
+          household_id?: string | null
           id?: string
           name: string
           target_amount: number
@@ -69,11 +82,79 @@ export type Database = {
           current_amount?: number
           deadline?: string | null
           emoji?: string
+          household_id?: string | null
           id?: string
           name?: string
           target_amount?: number
           updated_at?: string
           user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "goals_household_id_fkey"
+            columns: ["household_id"]
+            isOneToOne: false
+            referencedRelation: "households"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      household_members: {
+        Row: {
+          household_id: string
+          id: string
+          joined_at: string
+          role: string
+          status: string
+          user_id: string
+        }
+        Insert: {
+          household_id: string
+          id?: string
+          joined_at?: string
+          role?: string
+          status?: string
+          user_id: string
+        }
+        Update: {
+          household_id?: string
+          id?: string
+          joined_at?: string
+          role?: string
+          status?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "household_members_household_id_fkey"
+            columns: ["household_id"]
+            isOneToOne: false
+            referencedRelation: "households"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      households: {
+        Row: {
+          created_at: string
+          id: string
+          invite_code: string | null
+          name: string
+          owner_user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          invite_code?: string | null
+          name?: string
+          owner_user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          invite_code?: string | null
+          name?: string
+          owner_user_id?: string
         }
         Relationships: []
       }
@@ -82,8 +163,10 @@ export type Database = {
           amount: number
           category: string
           created_at: string
+          created_by_user_id: string | null
           date: string
           description: string
+          household_id: string | null
           id: string
           type: Database["public"]["Enums"]["transaction_type"]
           user_id: string
@@ -92,8 +175,10 @@ export type Database = {
           amount: number
           category?: string
           created_at?: string
+          created_by_user_id?: string | null
           date?: string
           description?: string
+          household_id?: string | null
           id?: string
           type: Database["public"]["Enums"]["transaction_type"]
           user_id: string
@@ -102,13 +187,23 @@ export type Database = {
           amount?: number
           category?: string
           created_at?: string
+          created_by_user_id?: string | null
           date?: string
           description?: string
+          household_id?: string | null
           id?: string
           type?: Database["public"]["Enums"]["transaction_type"]
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "transactions_household_id_fkey"
+            columns: ["household_id"]
+            isOneToOne: false
+            referencedRelation: "households"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       whatsapp_connections: {
         Row: {
@@ -142,7 +237,15 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      is_household_member: {
+        Args: { _household_id: string; _user_id: string }
+        Returns: boolean
+      }
+      is_household_owner: {
+        Args: { _household_id: string; _user_id: string }
+        Returns: boolean
+      }
+      join_household_by_code: { Args: { _invite_code: string }; Returns: Json }
     }
     Enums: {
       transaction_type: "income" | "expense"
