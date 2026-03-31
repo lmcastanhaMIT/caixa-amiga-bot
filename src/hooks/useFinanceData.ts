@@ -1,16 +1,19 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { useHousehold } from "@/hooks/useHousehold";
 
 export function useTransactions(limit?: number) {
   const { user } = useAuth();
+  const { activeHouseholdId } = useHousehold();
   return useQuery({
-    queryKey: ["transactions", user?.id, limit],
+    queryKey: ["transactions", user?.id, activeHouseholdId, limit],
     queryFn: async () => {
       let q = supabase
         .from("transactions")
         .select("*")
         .order("date", { ascending: false });
+      if (activeHouseholdId) q = q.eq("household_id", activeHouseholdId);
       if (limit) q = q.limit(limit);
       const { data, error } = await q;
       if (error) throw error;
@@ -22,18 +25,21 @@ export function useTransactions(limit?: number) {
 
 export function useMonthlyStats() {
   const { user } = useAuth();
+  const { activeHouseholdId } = useHousehold();
   const now = new Date();
   const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
   const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59).toISOString();
 
   return useQuery({
-    queryKey: ["monthly-stats", user?.id, monthStart],
+    queryKey: ["monthly-stats", user?.id, activeHouseholdId, monthStart],
     queryFn: async () => {
-      const { data, error } = await supabase
+      let q = supabase
         .from("transactions")
         .select("amount, type, category")
         .gte("date", monthStart)
         .lte("date", monthEnd);
+      if (activeHouseholdId) q = q.eq("household_id", activeHouseholdId);
+      const { data, error } = await q;
       if (error) throw error;
 
       let income = 0, expense = 0;
@@ -53,13 +59,16 @@ export function useMonthlyStats() {
 
 export function useGoals() {
   const { user } = useAuth();
+  const { activeHouseholdId } = useHousehold();
   return useQuery({
-    queryKey: ["goals", user?.id],
+    queryKey: ["goals", user?.id, activeHouseholdId],
     queryFn: async () => {
-      const { data, error } = await supabase
+      let q = supabase
         .from("goals")
         .select("*")
         .order("created_at", { ascending: false });
+      if (activeHouseholdId) q = q.eq("household_id", activeHouseholdId);
+      const { data, error } = await q;
       if (error) throw error;
       return data;
     },
@@ -69,16 +78,19 @@ export function useGoals() {
 
 export function useBudgets() {
   const { user } = useAuth();
+  const { activeHouseholdId } = useHousehold();
   const now = new Date();
   const monthYear = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
 
   return useQuery({
-    queryKey: ["budgets", user?.id, monthYear],
+    queryKey: ["budgets", user?.id, activeHouseholdId, monthYear],
     queryFn: async () => {
-      const { data, error } = await supabase
+      let q = supabase
         .from("budgets")
         .select("*")
         .eq("month_year", monthYear);
+      if (activeHouseholdId) q = q.eq("household_id", activeHouseholdId);
+      const { data, error } = await q;
       if (error) throw error;
       return data;
     },
